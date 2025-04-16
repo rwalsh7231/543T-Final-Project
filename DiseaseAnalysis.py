@@ -70,6 +70,12 @@ class Population:
 
         return activeInfected
 
+    def apply_vaccination(self, num_vaccinated, efficacy=1.0):
+        vaccinated = min(num_vaccinated, self.S)
+        effective_vaccinated = efficacy * vaccinated
+        self.S -= vaccinated
+        self.R += effective_vaccinated
+
 # when two groups connect, they infect one another
 def crossInfect(pop1, pop2):
 
