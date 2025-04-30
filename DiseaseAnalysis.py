@@ -76,22 +76,27 @@ class Population:
         self.S -= vaccinated
         self.R += effective_vaccinated
 
-# when two groups connect, they infect one another
-def crossInfect(pop1, pop2):
+# when multiple groups connect, they infect one another
+def crossInfect(pops):
 
-    # calculate the active infected
-    activeInfected1 = pop1.GetActiveInfected()
-    activeInfected2 = pop2.GetActiveInfected()
+    activeInfected = []
 
-    changeI1 = (pop1.S * pop2.crossInfectivity * activeInfected2)/pop1.N
+    for pop in pops:
+        activeInfected.append(pop.GetActiveInfected())
 
-    changeI2 = (pop2.S * pop1.crossInfectivity * activeInfected1) / pop2.N
+    changeI = []
 
-    pop1.S -= changeI1
-    pop1.I += changeI1
+    for i in range(len(pops)):
+        change = 0
+        for j in range(len(pops)):
+            if i != j:
+                change += (pops[i].S * pops[j].crossInfectivity * activeInfected[j])/pops[i].N
 
-    pop2.S -= changeI2
-    pop2.I += changeI2
+        changeI.append(change)
+
+    for i in range(len(changeI)):
+        pops[i].S -= changeI[i]
+        pops[i].I += changeI[i]
 
 
 
