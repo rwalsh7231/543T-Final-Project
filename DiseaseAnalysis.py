@@ -1,4 +1,20 @@
-# import matplotlib.pyplot as plt
+'''
+DiseaseAnalysis.py
+Developed by Robert Walsh and Josh Sapira
+
+This program file contains all the needed information on the creation of an advanced SIRD model with quarantine functionality.
+'''
+
+
+'''
+This is a population, made up of N people, with a beta infection rate, a gamma recovery rate, and a mu death rate.
+In addition, there is a crossInfectivity value which indicates the percentage of people who travel from one population to another.
+We use this value to do multi-population analysis.
+We also keep track of time for quarantine purposes and whether or not a population contains a "patient zero"
+The quarantine is kept track of by using a dictionary which contains the number of still living infected on a day by day basis
+Quarantine leak represents delinquency. The higher the amount, the fewer people actually follow quarantine.
+Quarantine length represents how long an infected individual has before they can achieve full infectivity
+'''
 class Population:
     def __init__(self, N, beta, gamma, mu, crossInfectivity, infected=True, quarantineLeak = 1.0, quarantineLength = 1):
         self.N = N
@@ -33,6 +49,11 @@ class Population:
         # how long does an infected remain in quarantine
         self.quarantineLength = quarantineLength
 
+    '''
+    This function is used to simulate SIRD for a population. We first find the total number of active infected (those out of quarantine or not listening)
+    Then we go through each quarantine day to reduce the number of infected based on recovery and death rates
+    We then determine the new infected, and add them to a new quarantine section, marking the day in which they can leave
+    '''
     def SIRD(self):
 
         # keep a tally of infected who are out of quarantine or choose to ignore quarantine
@@ -59,6 +80,10 @@ class Population:
         self.R += changeR
         self.D += changeD
 
+    '''
+    This function helps us find out who is following the quarantine and who is out of quarantine.
+    If the day is less than the current date, the infected are free, otherwise infected are limited by who ignores quarantine.
+    '''
     def GetActiveInfected(self):
         # keep a tally of infected who are out of quarantine or choose to ignore quarantine
         activeInfected = 0
@@ -70,12 +95,19 @@ class Population:
 
         return activeInfected
 
+    '''
+    A vaccination method, moves the susceptible to the recovered/immune group based on vaccine efficiency
+    '''
     def apply_vaccination(self, num_vaccinated, efficacy=1.0):
         vaccinated = min(num_vaccinated, self.S)
         effective_vaccinated = efficacy * vaccinated
         self.S -= vaccinated
         self.R += effective_vaccinated
 
+'''
+This function takes a group of infected populations and applies cross-infectivity to them.
+Each day, some percentage of people visit another community. If the infected are among them, then they also infect the other communities.
+'''
 # when multiple groups connect, they infect one another
 def crossInfect(pops):
 
